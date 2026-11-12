@@ -1,0 +1,6 @@
+{
+  "name": "QUẢN LÝ THI ĐUA LỚP - PHẠM HẬU",
+  "description": "Ứng dụng thi đua, tích lũy điểm và vinh danh học tập lớp học theo tổ và cá nhân với bảng vàng trực quan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

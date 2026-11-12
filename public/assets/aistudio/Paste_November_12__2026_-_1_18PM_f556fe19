@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math12 Master - Thi đua & Tích lũy Điểm Toán 12</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2.5 rounded-xl border border-indigo-500 shadow-inner">
+                    <i class="fa-solid fa-square-root-variable text-2xl text-amber-300"></i>
+                </div>
+                <div>
+                    <h1 id="app-title-display" class="text-xl font-bold tracking-tight">Math12 Master - Thi đua & Tích lũy Điểm Toán</h1>
+                    <p class="text-xs text-indigo-200">Chủ đề: Khảo sát hàm số & Ứng dụng đạo hàm - Lớp <span id="header-class-name">12A6</span></p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+                <button onclick="openPresentationModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-sm shadow transition flex items-center space-x-2">
+                    <i class="fa-solid fa-display"></i>
+                    <span>Trình chiếu Bảng Vàng</span>
+                </button>
+                <button onclick="exportData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition flex items-center space-x-2">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Xuất Excel Tuần</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 flex space-x-6 overflow-x-auto">
+            <button onclick="switchTab('chamdiem')" id="btn-chamdiem" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Chấm điểm Tổ & Cá nhân</span>
+            </button>
+            <button onclick="switchTab('xephang')" id="btn-xephang" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-trophy"></i>
+                <span>Xếp hạng & Thống kê</span>
+            </button>
+            <button onclick="switchTab('lichsu')" id="btn-lichsu" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Lịch sử chấm điểm</span>
+            </button>
+            <button onclick="switchTab('tieuchi')" id="btn-tieuchi" class="tab-btn py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap">
+                <i class="fa-solid fa-gear"></i>
+                <span>Cấu hình Lớp & Tiêu chí</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- TAB 1: CHẤM ĐIỂM -->
+        <div id="tab-chamdiem" class="tab-content active space-y-6">
+            <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 gap-4">
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Tuần học</label>
+                        <select id="select-tuan" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option>Tuần 10 (02/11 - 07/11/2026)</option>
+                            <option>Tuần 11 (09/11 - 14/11/2026)</option>
+                            <option>Tuần 12 (16/11 - 21/11/2026)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Thao tác nhanh</label>
+                        <button onclick="undoLastAction()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-300 transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-rotate-left text-indigo-600"></i>
+                            <span>Hoàn tác (Undo)</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Đã lưu tự động vào bộ nhớ máy
+                    </span>
+                </div>
+            </div>
+
+            <!-- Các tổ học tập -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="teams-container">
+                <!-- Render bằng Javascript -->
+            </div>
+        </div>
+
+        <!-- TAB 2: XẾP HẠNG & THỐNG KÊ -->
+        <div id="tab-xephang" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Xếp hạng tổ tuần -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 space-y-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-ranking-star text-amber-500"></i>
+                        <span>Bảng xếp hạng Tổ - Tuần này</span>
+                    </h3>
+                    <div class="space-y-3" id="ranking-bars">
+                        <!-- Render dynamic -->
+                    </div>
+                    <div class="pt-4 border-t border-slate-100">
+                        <canvas id="teamChart" height="120"></canvas>
+                    </div>
+                </div>
+
+                <!-- Cá nhân nổi bật -->
+                <div class="space-y-6">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                        <h3 class="text-base font-bold text-emerald-700 flex items-center space-x-2">
+                            <i class="fa-solid fa-medal"></i>
+                            <span>Cá nhân tích cực nhất (Toán 12)</span>
+                        </h3>
+                        <ul class="divide-y divide-slate-100 text-sm" id="top-positive-list">
+                            <!-- Render dynamic -->
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                        <h3 class="text-base font-bold text-rose-600 flex items-center space-x-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Cần cố gắng (Cần kèm cặp)</span>
+                        </h3>
+                        <ul class="divide-y divide-slate-100 text-sm" id="top-negative-list">
+                            <!-- Render dynamic -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: LỊCH SỬ -->
+        <div id="tab-lichsu" class="tab-content space-y-4">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                <h3 class="text-base font-bold text-slate-800">Nhật ký cộng trừ điểm thời gian thực</h3>
+                <button onclick="clearHistory()" class="text-xs text-rose-600 hover:text-rose-800 font-medium">Xóa toàn bộ lịch sử</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            <th class="py-3 px-4">Thời gian</th>
+                            <th class="py-3 px-4">Học sinh</th>
+                            <th class="py-3 px-4">Tổ</th>
+                            <th class="py-3 px-4">Nội dung / Tiêu chí</th>
+                            <th class="py-3 px-4 text-center">Điểm</th>
+                            <th class="py-3 px-4 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="divide-y divide-slate-200 text-sm text-slate-700">
+                        <!-- Render dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 4: CẤU HÌNH LỚP & TIÊU CHÍ -->
+        <div id="tab-tieuchi" class="tab-content space-y-6">
+            <!-- Cấu hình tên lớp học -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-school text-indigo-600"></i>
+                    <span>Cấu hình Tên lớp</span>
+                </h3>
+                <div class="flex items-center space-x-3 max-w-md">
+                    <input type="text" id="input-class-name" value="12A6" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm flex-grow focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <button onclick="updateClassName()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Cập nhật</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Quản lý thành viên tổ (Thêm/Xóa học sinh) -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center justify-between">
+                        <span>Quản lý Thành viên theo Tổ</span>
+                        <button onclick="addStudentPrompt()" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1 rounded text-xs font-semibold">
+                            <i class="fa-solid fa-plus mr-1"></i> Thêm học sinh
+                        </button>
+                    </h3>
+                    <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2" id="team-members-config">
+                        <!-- Render dynamic -->
+                    </div>
+                </div>
+
+                <!-- Danh sách tiêu chí -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center justify-between">
+                        <span>Bộ tiêu chí thi đua Môn Toán 12</span>
+                        <button onclick="addCriteriaPrompt()" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1 rounded text-xs font-semibold">Thêm tiêu chí</button>
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs">
+                                    <th class="py-2.5 px-3">Nội dung tiêu chí</th>
+                                    <th class="py-2.5 px-3 text-center">Điểm</th>
+                                    <th class="py-2.5 px-3 text-right">Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="criteria-table-body" class="divide-y divide-slate-100">
+                                <!-- Render dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL CHẤM ĐIỂM CHO HỌC SINH -->
+    <div id="scoring-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <div class="bg-indigo-600 text-white px-5 py-4 flex justify-between items-center">
+                <div>
+                    <h3 id="modal-student-name" class="font-bold text-lg">Học sinh</h3>
+                    <p id="modal-student-team" class="text-xs text-indigo-200">Tổ 1</p>
+                </div>
+                <button onclick="closeScoringModal()" class="text-indigo-200 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Chọn tiêu chí cộng / trừ điểm:</p>
+                <div class="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto pr-1" id="modal-criteria-list">
+                    <!-- Render criteria buttons -->
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Ghi chú thêm (Tùy chọn)</label>
+                    <input type="text" id="modal-note" placeholder="Ví dụ: Bài toán cực trị hàm bậc 4..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 flex justify-end space-x-2">
+                <button onclick="closeScoringModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg transition">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TRÌNH CHIẾU BẢNG VÀNG -->
+    <div id="presentation-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-6 text-white">
+        <button onclick="closePresentationModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white text-3xl font-bold">&times;</button>
+        <div class="text-center space-y-2 mb-8">
+            <span class="bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Bảng Vàng Thi Đua Toán Học</span>
+            <h2 class="text-3xl font-extrabold tracking-tight text-amber-300">TỔNG KẾT THI ĐUA TOÁN 12 - LỚP <span id="presentation-class-name">12A6</span></h2>
+            <p class="text-sm text-slate-300">Chủ đề: Khảo sát hàm số & Ứng dụng đạo hàm</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-6xl" id="presentation-teams">
+            <!-- Render dynamic presentation cards -->
+        </div>
+        <div class="mt-8">
+            <button onclick="closePresentationModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl shadow transition">Thoát trình chiếu</button>
+        </div>
+    </div>
+
+    <!-- Script xử lý toàn bộ logic -->
+    <script>
+        // --- DỮ LIỆU BAN ĐẦU ---
+        let appData = {
+            className: "12A6",
+            teams: [
+                { id: 1, name: "Tổ 1", color: "blue", students: ["Nguyễn Minh Khang", "Trần Anh Phong", "Phạm Thu Trâm", "Đỗ Mỹ Hà"] },
+                { id: 2, name: "Tổ 2", color: "indigo", students: ["Lê Quốc Sơn", "Lê Bảo Uyên", "Mai Hữu Quân", "Phạm Khánh Chi"] },
+                { id: 3, name: "Tổ 3", color: "amber", students: ["Võ Hữu Khoa", "Ngô Hoàng Thư", "Đặng Quang Huy", "Bùi Quỳnh Anh"] },
+                { id: 4, name: "Tổ 4", color: "emerald", students: ["Hoàng Gia Huy", "Vũ Hoàng Linh", "Phan Thanh Tùng", "Lý Thanh Trúc"] }
+            ],
+            criteria: [
+                { id: 1, text: "Giải nhanh bài toán cực trị hàm số", points: 2, target: "Cá nhân" },
+                { id: 2, text: "Phát hiện lỗi sai tiệm cận / đồ thị", points: 2, target: "Cá nhân" },
+                { id: 3, text: "Làm bài tập khảo sát đầy đủ", points: 1, target: "Cá nhân" },
+                { id: 4, text: "Thuyết trình mô hình STEM Toán học", points: 3, target: "Tổ" },
+                { id: 5, text: "Không làm bài tập về nhà", points: -1, target: "Cá nhân" },
+                { id: 6, text: "Sai dấu hoặc lỗi đạo hàm cơ bản", points: -1, target: "Cá nhân" }
+            ],
+            scores: {}, 
+            history: [], 
+            undoStack: []
+        };
+
+        function initScores() {
+            appData.teams.forEach(team => {
+                team.students.forEach(student => {
+                    if (appData.scores[student] === undefined) {
+                        appData.scores[student] = 5; 
+                    }
+                });
+            });
+        }
+
+        function updateUIClassNames() {
+            document.getElementById('header-class-name').innerText = appData.className;
+            document.getElementById('presentation-class-name').innerText = appData.className;
+            document.getElementById('input-class-name').value = appData.className;
+        }
+
+        function updateClassName() {
+            const newName = document.getElementById('input-class-name').value.trim();
+            if (newName) {
+                appData.className = newName;
+                updateUIClassNames();
+                saveToLocalStorage();
+                alert(`Đã cập nhật tên lớp thành: ${newName}`);
+            }
+        }
+
+        // --- QUẢN LÝ TAB ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('border-indigo-600', 'text-indigo-600');
+                el.classList.add('border-transparent', 'text-slate-500');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const btn = document.getElementById('btn-' + tabId);
+            btn.classList.remove('border-transparent', 'text-slate-500');
+            btn.classList.add('border-indigo-600', 'text-indigo-600');
+
+            if (tabId === 'xephang') {
+                renderRanking();
+            } else if (tabId === 'lichsu') {
+                renderHistory();
+            } else if (tabId === 'tieuchi') {
+                renderConfig();
+            }
+        }
+
+        // --- RENDER CHÍNH (TAB 1) ---
+        function renderTeams() {
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+
+            appData.teams.forEach(team => {
+                let teamTotal = team.students.reduce((sum, st) => sum + (appData.scores[st] || 0), 0);
+                
+                let borderColors = { blue: 'border-blue-500', indigo: 'border-indigo-500', amber: 'border-amber-500', emerald: 'border-emerald-500' };
+                let bgHeader = { blue: 'bg-blue-50 text-blue-800', indigo: 'bg-indigo-50 text-indigo-800', amber: 'bg-amber-50 text-amber-800', emerald: 'bg-emerald-50 text-emerald-800' };
+
+                let html = `
+                    <div class="bg-white rounded-xl shadow-sm border-t-4 ${borderColors[team.color]} border-x border-b border-slate-200 flex flex-col justify-between">
+                        <div class="p-4 ${bgHeader[team.color]} flex justify-between items-center border-b border-slate-100">
+                            <h3 class="font-bold text-base">${team.name}</h3>
+                            <span class="px-2.5 py-1 bg-white rounded-lg font-extrabold text-sm shadow-sm">${teamTotal} đ</span>
+                        </div>
+                        <div class="p-4 space-y-2 flex-grow">
+                `;
+
+                team.students.forEach(student => {
+                    let pts = appData.scores[student] || 0;
+                    let badgeColor = pts >= 5 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+                    html += `
+                        <div onclick="openScoringModal('${student.replace(/'/g, "\\'")}', '${team.name}')" class="group flex justify-between items-center p-2.5 rounded-lg border border-slate-200 hover:border-indigo-500 hover:shadow-sm bg-white cursor-pointer transition">
+                            <span class="text-sm font-medium text-slate-700 group-hover:text-indigo-600 truncate pr-2">${student}</span>
+                            <span class="px-2 py-0.5 rounded text-xs font-bold border ${badgeColor}">${pts >= 0 ? '+' + pts : pts}</span>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                        <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
+                            <button onclick="quickTeamPoint('${team.name}', 1)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded-lg text-xs font-semibold shadow transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Thưởng cả ${team.name} (+1đ)
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // --- MODAL CHẤM ĐIỂM ---
+        let currentSelectedStudent = '';
+        let currentSelectedTeam = '';
+
+        function openScoringModal(studentName, teamName) {
+            currentSelectedStudent = studentName;
+            currentSelectedTeam = teamName;
+            document.getElementById('modal-student-name').innerText = studentName;
+            document.getElementById('modal-student-team').innerText = teamName;
+            document.getElementById('modal-note').value = '';
+
+            const listContainer = document.getElementById('modal-criteria-list');
+            listContainer.innerHTML = '';
+
+            appData.criteria.forEach(crit => {
+                let isBonus = crit.points > 0;
+                let btnColor = isBonus ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-200';
+                listContainer.innerHTML += `
+                    <button onclick="applyScore(${crit.points}, '${crit.text.replace(/'/g, "\\'")}')" class="flex justify-between items-center p-3 rounded-xl border ${btnColor} transition text-left">
+                        <span class="text-sm font-medium">${crit.text}</span>
+                        <span class="font-bold text-sm px-2 py-0.5 rounded bg-white shadow-sm">${crit.points > 0 ? '+' + crit.points : crit.points}</span>
+                    </button>
+                `;
+            });
+
+            document.getElementById('scoring-modal').classList.remove('hidden');
+        }
+
+        function closeScoringModal() {
+            document.getElementById('scoring-modal').classList.add('hidden');
+        }
+
+        function applyScore(points, criteriaText) {
+            const note = document.getElementById('modal-note').value.trim();
+            const fullReason = note ? `${criteriaText} (${note})` : criteriaText;
+
+            appData.undoStack.push({
+                type: 'student',
+                student: currentSelectedStudent,
+                points: points,
+                reason: fullReason,
+                time: new Date().toLocaleTimeString()
+            });
+
+            appData.scores[currentSelectedStudent] = (appData.scores[currentSelectedStudent] || 0) + points;
+
+            appData.history.unshift({
+                time: new Date().toLocaleTimeString() + ' ' + new Date().toLocaleDateString(),
+                student: currentSelectedStudent,
+                team: currentSelectedTeam,
+                reason: fullReason,
+                points: points
+            });
+
+            closeScoringModal();
+            renderTeams();
+            saveToLocalStorage();
+        }
+
+        function quickTeamPoint(teamName, points) {
+            const team = appData.teams.find(t => t.name === teamName);
+            if (!team) return;
+            team.students.forEach(st => {
+                appData.scores[st] = (appData.scores[st] || 0) + points;
+            });
+            appData.history.unshift({
+                time: new Date().toLocaleTimeString() + ' ' + new Date().toLocaleDateString(),
+                student: `Cả ${teamName}`,
+                team: teamName,
+                reason: `Thưởng toàn đội khảo sát hàm số STEM`,
+                points: points
+            });
+            renderTeams();
+            saveToLocalStorage();
+            alert(`Đã thưởng +${points} điểm cho toàn bộ thành viên ${teamName}!`);
+        }
+
+        function undoLastAction() {
+            if (appData.undoStack.length === 0) {
+                alert('Không có thao tác nào để hoàn tác!');
+                return;
+            }
+            const last = appData.undoStack.pop();
+            if (last.type === 'student') {
+                appData.scores[last.student] -= last.points;
+                appData.history.shift();
+            }
+            renderTeams();
+            saveToLocalStorage();
+            alert(`Đã hoàn tác thao tác điểm của "${last.student}" thành công!`);
+        }
+
+        // --- RENDER XẾP HẠNG (TAB 2) ---
+        function renderRanking() {
+            const rankingBars = document.getElementById('ranking-bars');
+            rankingBars.innerHTML = '';
+
+            let teamScores = appData.teams.map(team => {
+                let total = team.students.reduce((sum, st) => sum + (appData.scores[st] || 0), 0);
+                return { name: team.name, total: total };
+            });
+            teamScores.sort((a, b) => b.total - a.total);
+
+            let medals = ['🥇', '🥈', '🥉', '🏅'];
+            teamScores.forEach((t, idx) => {
+                let maxPts = Math.max(...teamScores.map(x => x.total), 20);
+                let percent = Math.max((t.total / maxPts) * 100, 10);
+                let barColors = ['bg-amber-500', 'bg-blue-500', 'bg-indigo-500', 'bg-emerald-500'];
+
+                rankingBars.innerHTML += `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span>${medals[idx]} ${t.name}</span>
+                            <span class="text-indigo-600 font-bold">${t.total} điểm</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                            <div class="${barColors[idx]} h-full rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let studentList = [];
+            appData.teams.forEach(team => {
+                team.students.forEach(st => {
+                    studentList.push({ name: st, team: team.name, points: appData.scores[st] || 0 });
+                });
+            });
+            studentList.sort((a, b) => b.points - a.points);
+
+            const topPos = document.getElementById('top-positive-list');
+            topPos.innerHTML = '';
+            studentList.slice(0, 4).forEach((st, i) => {
+                topPos.innerHTML += `
+                    <li class="py-2 flex justify-between items-center">
+                        <span class="font-medium text-slate-700">${i+1}. ${st.name} <span class="text-xs text-slate-400">(${st.team})</span></span>
+                        <span class="font-bold text-emerald-600">+${st.points} đ</span>
+                    </li>
+                `;
+            });
+
+            const topNeg = document.getElementById('top-negative-list');
+            topNeg.innerHTML = '';
+            studentList.slice(-3).reverse().forEach((st) => {
+                topNeg.innerHTML += `
+                    <li class="py-2 flex justify-between items-center">
+                        <span class="font-medium text-slate-700">${st.name} <span class="text-xs text-slate-400">(${st.team})</span></span>
+                        <span class="font-bold text-rose-600">${st.points} đ</span>
+                    </li>
+                `;
+            });
+        }
+
+        // --- RENDER LỊCH SỬ (TAB 3) ---
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+            if (appData.history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Chưa có lịch sử chấm điểm trong tuần này.</td></tr>`;
+                return;
+            }
+            appData.history.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4 text-xs text-slate-500">${item.time}</td>
+                        <td class="py-3 px-4 font-medium text-slate-800">${item.student}</td>
+                        <td class="py-3 px-4 text-slate-600">${item.team}</td>
+                        <td class="py-3 px-4 text-slate-600">${item.reason}</td>
+                        <td class="py-3 px-4 text-center font-bold ${item.points > 0 ? 'text-emerald-600' : 'text-rose-600'}">${item.points > 0 ? '+' + item.points : item.points}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteHistoryItem(${index})" class="text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteHistoryItem(index) {
+            appData.history.splice(index, 1);
+            renderHistory();
+            saveToLocalStorage();
+        }
+
+        function clearHistory() {
+            if (confirm('Bạn có chắc muốn xóa toàn bộ lịch sử chấm điểm?')) {
+                appData.history = [];
+                renderHistory();
+                saveToLocalStorage();
+            }
+        }
+
+        // --- RENDER CẤU HÌNH (TAB 4) ---
+        function renderConfig() {
+            // Render tiêu chí
+            const critBody = document.getElementById('criteria-table-body');
+            critBody.innerHTML = '';
+            appData.criteria.forEach((crit, idx) => {
+                critBody.innerHTML += `
+                    <tr class="border-b border-slate-100">
+                        <td class="py-2.5 px-3 font-medium text-slate-700">${crit.text}</td>
+                        <td class="py-2.5 px-3 text-center font-bold ${crit.points > 0 ? 'text-emerald-600' : 'text-rose-600'}">${crit.points > 0 ? '+' + crit.points : crit.points}</td>
+                        <td class="py-2.5 px-3 text-right">
+                            <button onclick="deleteCriteria(${idx})" class="text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Render thành viên tổ kèm nút xóa/sửa
+            const teamConfig = document.getElementById('team-members-config');
+            teamConfig.innerHTML = '';
+            appData.teams.forEach(team => {
+                let studentTags = team.students.map((st, sIdx) => `
+                    <span class="inline-flex items-center bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 shadow-sm">
+                        ${st}
+                        <button onclick="removeStudent('${team.name}', ${sIdx})" class="ml-2 text-slate-400 hover:text-rose-600">&times;</button>
+                    </span>
+                `).join(' ');
+
+                teamConfig.innerHTML += `
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-sm text-indigo-700">${team.name}</h4>
+                            <span class="text-xs text-slate-500">${team.students.length} học sinh</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${studentTags || '<span class="text-xs text-slate-400">Chưa có học sinh</span>'}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addStudentPrompt() {
+            let teamNameInput = prompt('Nhập tên tổ muốn thêm học sinh (Tổ 1, Tổ 2, Tổ 3, Tổ 4):', 'Tổ 1');
+            if (!teamNameInput) return;
+            let team = appData.teams.find(t => t.name.toLowerCase() === teamNameInput.toLowerCase());
+            if (!team) {
+                alert('Không tìm thấy tên tổ này!');
+                return;
+            }
+            let studentName = prompt(`Nhập họ và tên học sinh mới vào ${team.name}:`);
+            if (studentName) {
+                studentName = studentName.trim();
+                if (team.students.includes(studentName)) {
+                    alert('Học sinh này đã có trong tổ!');
+                    return;
+                }
+                team.students.push(studentName);
+                if (appData.scores[studentName] === undefined) {
+                    appData.scores[studentName] = 5;
+                }
+                renderConfig();
+                renderTeams();
+                saveToLocalStorage();
+                alert(`Đã thêm học sinh "${studentName}" vào ${team.name}!`);
+            }
+        }
+
+        function removeStudent(teamName, studentIndex) {
+            let team = appData.teams.find(t => t.name === teamName);
+            if (!team) return;
+            let removedName = team.students[studentIndex];
+            if (confirm(`Bạn có chắc muốn xóa học sinh "${removedName}" khỏi ${teamName}?`)) {
+                team.students.splice(studentIndex, 1);
+                renderConfig();
+                renderTeams();
+                saveToLocalStorage();
+            }
+        }
+
+        function addCriteriaPrompt() {
+            let text = prompt('Nhập nội dung tiêu chí Toán 12 mới:');
+            let pts = parseInt(prompt('Nhập số điểm (dương để cộng, âm để trừ), ví dụ: 2 hoặc -1:', '1'));
+            if (text && !isNaN(pts)) {
+                appData.criteria.push({ id: Date.now(), text: text.trim(), points: pts, target: 'Cá nhân' });
+                renderConfig();
+                saveToLocalStorage();
+                alert('Đã thêm tiêu chí mới thành công!');
+            }
+        }
+
+        function deleteCriteria(index) {
+            if (confirm('Bạn có muốn xóa tiêu chí này không?')) {
+                appData.criteria.splice(index, 1);
+                renderConfig();
+                saveToLocalStorage();
+            }
+        }
+
+        // --- TRÌNH CHIẾU BẢNG VÀNG ---
+        function openPresentationModal() {
+            const container = document.getElementById('presentation-teams');
+            container.innerHTML = '';
+
+            let teamScores = appData.teams.map(team => {
+                let total = team.students.reduce((sum, st) => sum + (appData.scores[st] || 0), 0);
+                return { name: team.name, total: total };
+            });
+            teamScores.sort((a, b) => b.total - a.total);
+
+            let bgCards = ['bg-amber-600/30 border-amber-500', 'bg-blue-600/30 border-blue-500', 'bg-indigo-600/30 border-indigo-500', 'bg-slate-700/50 border-slate-600'];
+            let medals = ['🥇 HẠNG NHẤT', '🥈 HẠNG NHÌ', '🥉 HẠNG BA', '🏅 HẠNG TƯ'];
+
+            teamScores.forEach((t, i) => {
+                container.innerHTML += `
+                    <div class="p-6 rounded-2xl border-2 ${bgCards[i]} backdrop-blur-md flex flex-col items-center justify-center space-y-3 text-center shadow-2xl">
+                        <span class="text-xs font-bold px-3 py-1 bg-white/20 rounded-full">${medals[i]}</span>
+                        <h3 class="text-2xl font-bold">${t.name}</h3>
+                        <p class="text-4xl font-extrabold text-amber-300">${t.total} <span class="text-sm font-normal text-slate-300">điểm</span></p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('presentation-modal').classList.remove('hidden');
+        }
+
+        function closePresentationModal() {
+            document.getElementById('presentation-modal').classList.add('hidden');
+        }
+
+        // --- XUẤT EXCEL GIẢ LẬP ---
+        function exportData() {
+            let csvContent = `data:text/csv;charset=utf-8,STT,HocSinh,To,DiemThiDua (Lop ${appData.className})\n`;
+            let index = 1;
+            appData.teams.forEach(team => {
+                team.students.forEach(st => {
+                    csvContent += `${index++},"${st}",${team.name},${appData.scores[st] || 0}\n`;
+                });
+            });
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Bang_Thi_Dua_Toan12_Lop_${appData.className}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- LOCAL STORAGE ---
+        function saveToLocalStorage() {
+            localStorage.setItem('math12_master_data_v2', JSON.stringify(appData));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('math12_master_data_v2');
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        window.onload = function() {
+            loadFromLocalStorage();
+            updateUIClassNames();
+            initScores();
+            renderTeams();
+        };
+    </script>
+</body>
+</html>
